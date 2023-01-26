@@ -38,7 +38,8 @@ def sitemap():
     return generate_sitemap(app)
 
 
-#empezamos a trabajar desde aca
+#EMPEZAMOS A TRABAJAR DESDE ACA
+
 #este endpoint nos permite traer la informacion de todos los users
 @app.route('/user', methods=['GET'])
 def handle_hello():
@@ -46,8 +47,8 @@ def handle_hello():
     results = list(map(lambda item: item.serialize(),allusers))
     return jsonify(results), 200
 
-#aca traemos la informacion de un solo character    
 
+#aca traemos la informacion de un solo user    
 @app.route('/user/<int:user_id>', methods=['GET'])
 def handle_singleuser(user_id):
     one_user = User.query.filter_by(id=user_id).first()
@@ -57,6 +58,7 @@ def handle_singleuser(user_id):
     else:
         return jsonify(one_user.serialize()), 200
 
+#aca traemos la informacion de un solo character    
 @app.route('/characters/<int:character_id>', methods=['GET'])
 def handle_one_character(character_id):
     one_character = Character.query.filter_by(id=character_id).first()
@@ -64,9 +66,28 @@ def handle_one_character(character_id):
         return jsonify({"msg":"planeta no existente"}), 404
     else:
         return jsonify(one_character.serialize()), 200
+        
+#aca traemos la informacion de un solo planet    
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def handle_one_planet(planet_id):
+    one_planet = Planet.query.filter_by(id=planet_id).first()
+    if one_planet is None:
+        return jsonify({"msg":"planeta no existente"}), 404
+    else:
+        return jsonify(one_planet.serialize()), 200        
+
+#aca traemos la informacion de un solo vehicle    
+@app.route('/vehicles/<int:vehicle_id>', methods=['GET'])
+def handle_one_vehicle(vehicle_id):
+    one_vehicle = Vehicle.query.filter_by(id=vehicle_id).first()
+    if one_vehicle is None:
+        return jsonify({"msg":"vehiculo no existente"}), 404
+    else:
+        return jsonify(one_vehicle.serialize()), 200        
 
 
 
+#creamos un usuario si no no podiamos hacer lo de favorites, porque para darle favoritos ena pagina debemos tener una cuenta
 @app.route('/user/', methods=['POST'])
 def add_user():
     request_body = request.data  #es la informacion que viene del postman la que viene del front end
@@ -80,6 +101,7 @@ def add_user():
             return jsonify({"msg":"usuario creado exitosamente"}), 200
     else: 
         return jsonify({"msg":"el email ya existe"}), 400 
+
 
 #aca traemos a todos los characters
 @app.route('/characters', methods=['GET'])
@@ -102,24 +124,24 @@ def handle_vehicles():
     results = list(map(lambda item: item.serialize(),all_vehicles))
     return jsonify(results), 200   
 
-#aca traemos a todos los vehicles
+#aca traemos a todos los favorites
 @app.route('/favourites', methods=['GET'])
 def handle_favourites():
     all_favourites = Favourite.query.all()
     results = list(map(lambda item: item.serialize(),all_favourites))
     return jsonify(results), 200 
         
-@app.route('/favourites/characters/<int:user_id>/<int:character_id>', methods=['POST'])
-def add_favourite_character(user_id, character_id):
-    one_user = User.query.filter_by(id=user_id).first()
-    if one_user is None:
+# @app.route('/favourites/characters/<int:user_id>/<int:character_id>', methods=['POST'])
+# def add_favourite_character(user_id, character_id):
+#     one_user = User.query.filter_by(id=user_id).first()
+#     if one_user is None:
         
         
 
 
 
 
-#aca terminamos de trabajar
+#ACA TERMINAMOS DE TRABAJAR
 
 
 # this only runs if `$ python src/app.py` is executed
