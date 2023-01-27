@@ -134,71 +134,60 @@ def handle_favourites():
 # POST: ACTUALIZA LA INFORMACION        
 @app.route('/favourites/characters/<int:user_ID>/<int:character_ID>', methods=['POST'])
 def add_favourite_character(user_ID, character_ID):
-    # controla que exista el usuario, va a buscar usuario existe              #true #
-    one_user = User.query.filter_by(id=user_ID).first()
-    print(one_user)
-    #Si existe el usuario #si la variable anazlizada tiene algo ya se va a asumir que la condicion va a dar true por default de lo contrario pasa al else que asume que es null
-    if one_user:
-        print("estoy en el if")
-    #     # esto controla que existan los personajes, si no existe el personaje lo agrega  lo de la linea comprueba que existe hace todo lo que no queremos
-        character = Favourite.query.filter_by(id=character_ID).first()
-        print(character)
-    #     # si character se cumple entonces se ejecuta el mensaje
-        if character:
-            response_body = {"msg": "El personaje seleccionado ya está en la lista de favoritos"}
+    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
+    character = Character.query.filter_by(id=character_ID).first()
+    if character is None:
+        if character is None:
+            response_body = {"msg":"no existe el personaje"}
             return jsonify(response_body), 404
-    #     # aca se va a retornar todo lo que queremos
         else:
-            print("hay que crear")
-            #                    propiedad: mencion que hacemos a la tabla, el valor: 
-            # new_character = Favourite(user_id=2, character_id=1) 
-            new_character = Favourite(user_id=user_ID, character_id=character_ID) 
-            db.session.add(new_character)
+            favorito = Favourite(character_id=character_ID, user_id=user_ID)
+            db.session.add(favorito)
             db.session.commit()
-            response_body = {"msg":"Se ha agregado el personaje a Favoritos"}
-            # favourite_character = Favourite.query.filter_by(id=character_ID).first()
-            # print(favourite_character)
-            return jsonify(response_body), 200 
-    else:
-        response_body = {"msg":"El usuario no existe"}
-        return jsonify(response_body), 404
-    return jsonify("ok"), 200        
+            response_body = {"msg":"Se ha agregado elpersonaje a Favoritos"}
+            return jsonify(response_body), 200
+    else:     
+        #si el personaje ya estaba en la lista   
+        response_body = {"msg":"El personaje ya esta agregado"}
+        return jsonify(response_body), 404        
 
 @app.route('/favourites/planets/<int:user_ID>/<int:planet_ID>', methods=['POST'])
 def add_favourite_planet(user_ID, planet_ID):
-    # controla que exista el usuario, va a buscar usuario existe              #true #
-    one_user = User.query.filter_by(id=user_ID).first()
-    # print(one_user)
-    #Si existe el usuario #si la variable anazlizada tiene algo ya se va a asumir que la condicion va a dar true por default de lo contrario pasa al else que asume que es null
-    if one_user:
-        # print("estoy en el if")
-    #     # esto controla que existan los personajes, si no existe el personaje lo agrega  lo de la linea comprueba que existe hace todo lo que no queremos
-        planet = Favourite.query.filter_by(id=planet_ID).first()
-        print(planet)
-        # print(character)
-    #     # si character se cumple entonces se ejecuta el mensaje
-        if planet:
-            response_body = {"msg": "El planeta seleccionado ya está en la lista de favoritos"}
+    planet = Planet.query.filter_by(id=planet_ID).first()
+    if planet is None:
+        if planet is None:
+            response_body = {"msg":"no existe el planeta"}
             return jsonify(response_body), 404
-    #     # aca se va a retornar todo lo que queremos
         else:
-            # print("hay que crear")
-            #                    propiedad: mencion que hacemos a la tabla, el valor: 
-            # new_character = Favourite(user_id=2, character_id=1) 
-            new_planet = Favourite(user_id=user_ID, planet_id=planet_ID) 
-            db.session.add(new_planet)
+            favorito = Favourite(planet_id=planet_ID, user_id=user_ID)
+            db.session.add(favorito)
             db.session.commit()
             response_body = {"msg":"Se ha agregado el planeta a Favoritos"}
-            # favourite_planet = Favourite.query.filter_by(id=character_ID).first()
-            # print(favourite_planet)
-            return jsonify(response_body), 200 
-    else:
-        response_body = {"msg":"El usuario no existe"}
-        return jsonify(response_body), 404
-    # return jsonify("ok"), 200        
+            return jsonify(response_body), 200
+    else:    
+        response_body = {"msg":"El planeta ya esta agregado"}
+        return jsonify(response_body), 404       
 
 
-    	
+@app.route('/favourites/vehicles/<int:user_ID>/<int:vehicle_ID>', methods=['POST'])
+def add_favourite_vehicle(user_ID, vehicle_ID):
+    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
+    vehicle = Vehicle.query.filter_by(id=vehicle_ID).first()
+    if vehicle is None:
+        if vehicle is None:
+            response_body = {"msg":"no existe el vehicle"}
+            return jsonify(response_body), 404
+        else:
+            favorito = Favourite(vehicle_id=character_ID, user_id=user_ID)
+            db.session.add(favorito)
+            db.session.commit()
+            response_body = {"msg":"Se ha agregado el vehicle a Favoritos"}
+            return jsonify(response_body), 200
+    else:     
+        #si el personaje ya estaba en la lista   
+        response_body = {"msg":"El vehicle ya esta agregado"}
+        return jsonify(response_body), 404  
+	
         
 
 
