@@ -131,11 +131,74 @@ def handle_favourites():
     results = list(map(lambda item: item.serialize(),all_favourites))
     return jsonify(results), 200 
         
-# @app.route('/favourites/characters/<int:user_id>/<int:character_id>', methods=['POST'])
-# def add_favourite_character(user_id, character_id):
-#     one_user = User.query.filter_by(id=user_id).first()
-#     if one_user is None:
-        
+# POST: ACTUALIZA LA INFORMACION        
+@app.route('/favourites/characters/<int:user_ID>/<int:character_ID>', methods=['POST'])
+def add_favourite_character(user_ID, character_ID):
+    # controla que exista el usuario, va a buscar usuario existe              #true #
+    one_user = User.query.filter_by(id=user_ID).first()
+    print(one_user)
+    #Si existe el usuario #si la variable anazlizada tiene algo ya se va a asumir que la condicion va a dar true por default de lo contrario pasa al else que asume que es null
+    if one_user:
+        print("estoy en el if")
+    #     # esto controla que existan los personajes, si no existe el personaje lo agrega  lo de la linea comprueba que existe hace todo lo que no queremos
+        character = Favourite.query.filter_by(id=character_ID).first()
+        print(character)
+    #     # si character se cumple entonces se ejecuta el mensaje
+        if character:
+            response_body = {"msg": "El personaje seleccionado ya está en la lista de favoritos"}
+            return jsonify(response_body), 404
+    #     # aca se va a retornar todo lo que queremos
+        else:
+            print("hay que crear")
+            #                    propiedad: mencion que hacemos a la tabla, el valor: 
+            # new_character = Favourite(user_id=2, character_id=1) 
+            new_character = Favourite(user_id=user_ID, character_id=character_ID) 
+            db.session.add(new_character)
+            db.session.commit()
+            response_body = {"msg":"Se ha agregado el personaje a Favoritos"}
+            # favourite_character = Favourite.query.filter_by(id=character_ID).first()
+            # print(favourite_character)
+            return jsonify(response_body), 200 
+    else:
+        response_body = {"msg":"El usuario no existe"}
+        return jsonify(response_body), 404
+    return jsonify("ok"), 200        
+
+@app.route('/favourites/planets/<int:user_ID>/<int:planet_ID>', methods=['POST'])
+def add_favourite_planet(user_ID, planet_ID):
+    # controla que exista el usuario, va a buscar usuario existe              #true #
+    one_user = User.query.filter_by(id=user_ID).first()
+    # print(one_user)
+    #Si existe el usuario #si la variable anazlizada tiene algo ya se va a asumir que la condicion va a dar true por default de lo contrario pasa al else que asume que es null
+    if one_user:
+        # print("estoy en el if")
+    #     # esto controla que existan los personajes, si no existe el personaje lo agrega  lo de la linea comprueba que existe hace todo lo que no queremos
+        planet = Favourite.query.filter_by(id=planet_ID).first()
+        print(planet)
+        # print(character)
+    #     # si character se cumple entonces se ejecuta el mensaje
+        if planet:
+            response_body = {"msg": "El planeta seleccionado ya está en la lista de favoritos"}
+            return jsonify(response_body), 404
+    #     # aca se va a retornar todo lo que queremos
+        else:
+            # print("hay que crear")
+            #                    propiedad: mencion que hacemos a la tabla, el valor: 
+            # new_character = Favourite(user_id=2, character_id=1) 
+            new_planet = Favourite(user_id=user_ID, planet_id=planet_ID) 
+            db.session.add(new_planet)
+            db.session.commit()
+            response_body = {"msg":"Se ha agregado el planeta a Favoritos"}
+            # favourite_planet = Favourite.query.filter_by(id=character_ID).first()
+            # print(favourite_planet)
+            return jsonify(response_body), 200 
+    else:
+        response_body = {"msg":"El usuario no existe"}
+        return jsonify(response_body), 404
+    # return jsonify("ok"), 200        
+
+
+    	
         
 
 
