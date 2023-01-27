@@ -188,9 +188,28 @@ def add_favourite_vehicle(user_ID, vehicle_ID):
         response_body = {"msg":"El vehicle ya esta agregado"}
         return jsonify(response_body), 404  
 	
-        
-
-
+# METODO DELETE
+@app.route('/favourites/characters/<int:user_ID>/<int:character_ID>', methods=['DELETE'])
+def borrar_character_fav(user_ID, character_ID):
+    # Aca verificamos si el usuario ingresado existe, si no existe devuelve el usario no existe
+    usuario = User.query.filter_by(id=user_ID).first()
+    if usuario is None:
+        response_body = {"msg": "El usuario ingresado no existe"}
+        return jsonify(response_body), 404
+        print("1")
+    #Aca verificamos si el personaje ya esté ingresado en favoritos, si el personaje no esite devuelve no existe dentro de favoritos
+    personaje = Character.query.filter_by(id=character_ID).first()
+    if personaje is None:
+        response_body = {"msg": "El personaje ingresado no existe dentro de favoritos"}
+        return jsonify(response_body), 404
+        print("2")
+    #Aca le indicamos que debe borrar al personaje seleccionado
+    borrar_personaje = Favourite.query.filter_by(id=user_ID).filter_by(id=character_ID).first()
+    db.session.delete(borrar_personaje)
+    db.session.commit()
+    response_body = {"msg": "El personaje seleccionado fue borrado con exito"}
+    return jsonify(response_body), 200
+    print("3")
 
 
 #ACA TERMINAMOS DE TRABAJAR
