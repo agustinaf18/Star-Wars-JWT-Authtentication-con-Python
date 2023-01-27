@@ -134,18 +134,24 @@ def handle_favourites():
 # POST: ACTUALIZA LA INFORMACION        
 @app.route('/favourites/characters/<int:user_ID>/<int:character_ID>', methods=['POST'])
 def add_favourite_character(user_ID, character_ID):
-    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
-    character = Character.query.filter_by(id=character_ID).first()
+    character = Favourite.query.filter_by(character_id=character_ID, user_id=user_ID).first()
     if character is None:
-        if character is None:
+    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
+        existe = Character.query.filter_by(id=character_ID).first()
+        if existe is None:
             response_body = {"msg":"no existe el personaje"}
             return jsonify(response_body), 404
         else:
-            favorito = Favourite(character_id=character_ID, user_id=user_ID)
-            db.session.add(favorito)
-            db.session.commit()
-            response_body = {"msg":"Se ha agregado elpersonaje a Favoritos"}
-            return jsonify(response_body), 200
+            user = User.query.filter_by(id=user_ID).first()
+            if user is None:
+                response_body = {"msg":"el usuario no existe"}
+                return jsonify(response_body),404
+            else:
+                favorito = Favourite(character_id=character_ID, user_id=user_ID)
+                db.session.add(favorito)
+                db.session.commit()
+                response_body = {"msg":"Se ha agregado elpersonaje a Favoritos"}
+                return jsonify(response_body), 200
     else:     
         #si el personaje ya estaba en la lista   
         response_body = {"msg":"El personaje ya esta agregado"}
@@ -153,17 +159,24 @@ def add_favourite_character(user_ID, character_ID):
 
 @app.route('/favourites/planets/<int:user_ID>/<int:planet_ID>', methods=['POST'])
 def add_favourite_planet(user_ID, planet_ID):
-    planet = Planet.query.filter_by(id=planet_ID).first()
+    planet = Favourite.query.filter_by(planet_id=planet_ID, user_id=user_ID).first()
     if planet is None:
-        if planet is None:
+    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
+        existe = Planet.query.filter_by(id=planet_ID).first()
+        if existe is None:
             response_body = {"msg":"no existe el planeta"}
             return jsonify(response_body), 404
         else:
-            favorito = Favourite(planet_id=planet_ID, user_id=user_ID)
-            db.session.add(favorito)
-            db.session.commit()
-            response_body = {"msg":"Se ha agregado el planeta a Favoritos"}
-            return jsonify(response_body), 200
+            user = User.query.filter_by(id=user_ID).first()
+            if user is None:
+                response_body = {"msg":"el usuario no existe"}
+                return jsonify(response_body),404                
+            else:
+                favorito = Favourite(planet_id=planet_ID, user_id=user_ID)
+                db.session.add(favorito)
+                db.session.commit()
+                response_body = {"msg":"Se ha agregado el planeta a Favoritos"}
+                return jsonify(response_body), 200
     else:    
         response_body = {"msg":"El planeta ya esta agregado"}
         return jsonify(response_body), 404       
@@ -171,22 +184,33 @@ def add_favourite_planet(user_ID, planet_ID):
 
 @app.route('/favourites/vehicles/<int:user_ID>/<int:vehicle_ID>', methods=['POST'])
 def add_favourite_vehicle(user_ID, vehicle_ID):
-    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
-    vehicle = Vehicle.query.filter_by(id=vehicle_ID).first()
+    vehicle = Favourite.query.filter_by(vehicle_id=vehicle_ID, user_id=user_ID).first()
     if vehicle is None:
-        if vehicle is None:
+    #se guarda los parametros de la pasados de la ruta <int:user_ID>/<int:character_ID> estos se guardan en la id de la  tabla de favorites
+        existe = Vehicle.query.filter_by(id=vehicle_ID).first()
+    
+        if existe is None:
             response_body = {"msg":"no existe el vehicle"}
             return jsonify(response_body), 404
         else:
-            favorito = Favourite(vehicle_id=character_ID, user_id=user_ID)
-            db.session.add(favorito)
-            db.session.commit()
-            response_body = {"msg":"Se ha agregado el vehicle a Favoritos"}
-            return jsonify(response_body), 200
+            user = User.query.filter_by(id=user_ID).first()
+            if user is None:
+                response_body = {"msg":"el usuario no existe"}
+                return jsonify(response_body),404
+            else:
+                favorito = Favourite(vehicle_id=character_ID, user_id=user_ID)
+                db.session.add(favorito)
+                db.session.commit()
+                response_body = {"msg":"Se ha agregado el vehicle a Favoritos"}
+                return jsonify(response_body), 200
     else:     
         #si el personaje ya estaba en la lista   
         response_body = {"msg":"El vehicle ya esta agregado"}
         return jsonify(response_body), 404  
+
+
+
+
 	
 # METODO DELETE
 @app.route('/favourites/characters/<int:user_ID>/<int:character_ID>', methods=['DELETE'])
@@ -196,20 +220,72 @@ def borrar_character_fav(user_ID, character_ID):
     if usuario is None:
         response_body = {"msg": "El usuario ingresado no existe"}
         return jsonify(response_body), 404
-        print("1")
+
     #Aca verificamos si el personaje ya esté ingresado en favoritos, si el personaje no esite devuelve no existe dentro de favoritos
     personaje = Character.query.filter_by(id=character_ID).first()
     if personaje is None:
         response_body = {"msg": "El personaje ingresado no existe dentro de favoritos"}
         return jsonify(response_body), 404
-        print("2")
+
     #Aca le indicamos que debe borrar al personaje seleccionado
-    borrar_personaje = Favourite.query.filter_by(id=user_ID).filter_by(id=character_ID).first()
+    borrar_personaje = Favourite.query.filter_by(user_id=user_ID).filter_by(character_id=character_ID).first()
+    if borrar_personaje is None: 
+        response_body = {"msg": "El personaje ingresado no existe dentro de favoritos"}
+        return jsonify(response_body), 404
+        
     db.session.delete(borrar_personaje)
     db.session.commit()
     response_body = {"msg": "El personaje seleccionado fue borrado con exito"}
     return jsonify(response_body), 200
-    print("3")
+    
+
+@app.route('/favourites/planets/<int:user_ID>/<int:planet_ID>', methods=['DELETE'])
+def borrar_planet_fav(user_ID, planet_ID):
+    # Aca verificamos si el usuario ingresado existe, si no existe devuelve el usario no existe
+    usuario = User.query.filter_by(id=user_ID).first()
+    if usuario is None:
+        response_body = {"msg": "El usuario ingresado no existe"}
+        return jsonify(response_body), 404
+        print("1")
+    #Aca verificamos si el personaje ya esté ingresado en favoritos, si el personaje no esite devuelve no existe dentro de favoritos
+    planeta = Planet.query.filter_by(id=planet_ID).first()
+    if planeta is None:
+        response_body = {"msg": "El planeta ingresado no existe dentro de favoritos"}
+        return jsonify(response_body), 404
+        print("2")
+    #Aca le indicamos que debe borrar al personaje seleccionado
+    borrar_planeta = Favourite.query.filter_by(user_id=user_ID).filter_by(planet_id=planet_ID).first()
+    if borrar_planeta is None: 
+        response_body = {"msg": "El personaje ingresado no existe dentro de favoritos"}
+        return jsonify(response_body), 404
+
+    db.session.delete(borrar_planeta)
+    db.session.commit()
+    response_body = {"msg": "El planeta seleccionado fue borrado con exito"}
+    return jsonify(response_body), 200
+    print("3")    
+
+@app.route('/favourites/vehicles/<int:user_ID>/<int:vehicle_ID>', methods=['DELETE'])
+def borrar_vehicle_fav(user_ID, vehicle_ID):
+    # Aca verificamos si el usuario ingresado existe, si no existe devuelve el usario no existe
+    usuario = User.query.filter_by(id=user_ID).first()
+    if usuario is None:
+        response_body = {"msg": "El usuario ingresado no existe"}
+        return jsonify(response_body), 404
+    #Aca verificamos si el personaje ya esté ingresado en favoritos, si el personaje no esite devuelve no existe dentro de favoritos
+    vehiculo = Vehicle.query.filter_by(id=vehicle_ID).first()
+    if vehiculo is None:
+        response_body = {"msg": "El vehiculo ingresado no existe dentro de favoritos"}
+        return jsonify(response_body), 404
+    #Aca le indicamos que debe borrar al personaje seleccionado
+    borrar_vehiculo = Favourite.query.filter_by(user_id=user_ID).filter_by(vehicle_id=vehicle_ID).first()
+    if borrar_vehiculo is None: 
+        response_body = {"msg": "El personaje ingresado no existe dentro de favoritos"}
+        return jsonify(response_body), 404
+    db.session.delete(borrar_vehiculo)
+    db.session.commit()
+    response_body = {"msg": "El vehiculo seleccionado fue borrado con exito"}
+    return jsonify(response_body), 200  
 
 
 #ACA TERMINAMOS DE TRABAJAR
