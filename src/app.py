@@ -10,9 +10,16 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Character, Planet, Vehicle, Favourite
 import json
+#import jwt
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+
 #from models import Person
 
 app = Flask(__name__)
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
+
 app.url_map.strict_slashes = False
 
 db_url = os.getenv("DATABASE_URL")
@@ -36,6 +43,47 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+
+
+#JWT EMPEZAMOS A TRABAJAR ACA
+
+# 1ERO metodo POST para crear usuario, 
+@app.route('/user/', methods=['POST'])
+def add_user():
+    request_body = request.data  #es la informacion que viene del postman la que viene del front end
+    decoded_object = json.loads(request_body)  # traduce la informacion, lo pasa a json 
+    print(decoded_object) # hace que podamos ver la informacion de manera que la necesitamos
+    get_email = User.query.filter_by(email=decoded_object["email"]).first()
+    if get_email is None:
+            new_user = User(user_name=decoded_object["user_name"], email=decoded_object["email"], password=decoded_object["password"])
+            db.session.add(new_user)
+            db.session.commit()
+            return jsonify({"msg":"usuario creado exitosamente"}), 200
+    else: 
+        return jsonify({"msg":"el email ya existe"}), 400 
+
+#2DO metodo  para generar token, se utiliza el POST, cuando decimos generar token estamos hablando del login. 
+# Create a route to authenticate your users and return JWTs. The
+# create_access_token() function is used to actually generate the JWT.
+#en Postman tenemos que poner en el body porque los posts siempre llevan informacion, body raw JSON y ponemos la info que tenemos ahi username y password que en realidad username la debemos cambiar por email porque trabajamos con eso.
+# 1ero {    "username": "test",  "password": "test"} en post man y nos da el token
+
+@app.route("/login", methods=["POST"]) 
+def login():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+    if email != "test" or password != "test":
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token)
+
+
+
+
+
+
+# JWT TERMINAMOS DE TRABAJAR ACA    
 
 
 #EMPEZAMOS A TRABAJAR DESDE ACA
@@ -86,21 +134,6 @@ def handle_one_vehicle(vehicle_id):
         return jsonify(one_vehicle.serialize()), 200        
 
 
-
-#creamos un usuario si no no podiamos hacer lo de favorites, porque para darle favoritos ena pagina debemos tener una cuenta
-@app.route('/user/', methods=['POST'])
-def add_user():
-    request_body = request.data  #es la informacion que viene del postman la que viene del front end
-    decoded_object = json.loads(request_body)  # traduce la informacion, lo pasa a json 
-    print(decoded_object) # hace que podamos ver la informacion de manera que la necesitamos
-    get_email = User.query.filter_by(email=decoded_object["email"]).first()
-    if get_email is None:
-            new_user = User(user_name=decoded_object["user_name"], email=decoded_object["email"], password=decoded_object["password"])
-            db.session.add(new_user)
-            db.session.commit()
-            return jsonify({"msg":"usuario creado exitosamente"}), 200
-    else: 
-        return jsonify({"msg":"el email ya existe"}), 400 
 
 
 #aca traemos a todos los characters
