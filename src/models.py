@@ -22,7 +22,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    user_name = db.Column(db.String(250) , nullable=False)
+    # user_name = db.Column(db.String(250) , nullable=False)
     password = db.Column(db.String(250) , nullable=False)
     favorite = db.relationship('Favourite', backref='user', lazy=True)
 
@@ -33,7 +33,7 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
-            "user_name": self.user_name,
+            # "user_name": self.user_name,
             # do not serialize the password, its a security breach
         }
 

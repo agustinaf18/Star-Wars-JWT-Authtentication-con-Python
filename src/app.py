@@ -67,20 +67,45 @@ def add_user():
 # create_access_token() function is used to actually generate the JWT.
 #en Postman tenemos que poner en el body porque los posts siempre llevan informacion, body raw JSON y ponemos la info que tenemos ahi username y password que en realidad username la debemos cambiar por email porque trabajamos con eso.
 # 1ero {    "username": "test",  "password": "test"} en post man y nos da el token
+#Nota: en la vida real sucede que la comparacion con test deberia ser la inforamcion,  nuestra guardada en la base de datos, creamos nuestro usario y nuesta info creada va a ser lo que es "test". y la informacion que nostros rellenemos al hacer el login se va a comparar con la que nosotros tenemos guardada en la base de datos, cuando hicimos el registro. despues del hacer la consulta en la linea 78 entonces hacemos la peticion en el postman y nos va a aparecer None en la consola porque hicmos print de user, y ahi es cuando vamos a cambiar por test, mientras no coincide va a aprecer en postman el msg de linea 82.
+# para que aprezca el print hacemos la peticion en el postman primero
+# se hace la consulta a la tabla User que se guarda en una variable user, en la cual vamos a tener guardado el email y con eso es el if de la linea 85
 
 @app.route("/login", methods=["POST"]) 
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    if email != "test" or password != "test":
-        return jsonify({"msg": "Bad username or password"}), 401
+
+    #dentro de la propiedad email, vamos a buscar el email que nos mandaron desde el fornt
+    user = User.query.filter_by(email=email).first()
+    print(user)
+    print(user.email)
+    
+    if email != user.email  or password != user.password:
+        return jsonify({"msg": "Bad email or password"}), 401
 
     access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
 
+#3ERO hacer rutas protegidas
+# Protect a route with jwt_required, which will kick out requests
+# without a valid JWT present.
+#voy a hacer una ruta protegida de profile
+# hacemos el metodo en postman, seleccionamos authentication, y bearer token y pegamos el token que teniamos del post en donde dice token del postman
+# en current_user esta guardado los datos, entonces se interpreta en el campo email, busca lo que tenga currentuser
+@app.route("/accederacuenta", methods=["GET"])
+@jwt_required()
+def get_accederacuenta():
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
 
+    user = User.query.filter_by(email=current_user).first()
+    print(user.serialize())
+    response_body = {"user":user.serialize()}
 
+    return jsonify(response_body), 200 
 
+#
 
 
 # JWT TERMINAMOS DE TRABAJAR ACA    
